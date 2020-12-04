@@ -17,3 +17,4 @@ To design and implement a system using computer vision that monitors vehicles on
 
 
 ### Usecase diagram
+![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/usecase.png)

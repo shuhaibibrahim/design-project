@@ -32,3 +32,9 @@ The database mainly consists of 3 tables.
 ![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/usecase.png)
 
 ### Website
+![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/websiteUiLogin.jpeg)
+![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/websiteUiHome.jpeg)
+
+* Consist of a Login page where the officers are allowed to login.
+* A successful login leads to a page where the 'Vehicle Table' will be displayed.
+* Option for searching by date is also provided.

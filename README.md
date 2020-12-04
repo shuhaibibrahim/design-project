@@ -9,12 +9,26 @@ A traffic rationing scheme to reduce the number of vehicles on the road. Vehicle
 ### What is this Project?
 To design and implement a system using computer vision that monitors vehicles on the road and report the vehicles that violates the traffic rationing scheme.
 
-### Design Flow
-
+### Design Flow Diagram
 ![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/flowchart.png)
 
-### Database design
+### Design Steps
+* Record live footage of vehicles on the road with a high resolution camera from major parts of the city.
+* The recording is fed into YOLO V4 custom licence plate detecting model.
+* The detected license plate image is then fed into Tesseract OCR engine (pytesseract) for recognizing the licence plate numbers.
+* The above output string is then checked whether it violates the Odd-Even Scheme.
+* If yes, The license plate string along with the date and time is inserted into the 'Vehicle Table'.
+
+#### Database design
+The database mainly consists of 3 tables.
+* User Table
+* Vehicle Table
+* Vehicle Owner Table (From external database)
+
+![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/Database.jpg)
 
 
 ### Usecase diagram
 ![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/usecase.png)
+
+### Website

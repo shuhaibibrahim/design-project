@@ -1,0 +1,76 @@
+.App{
+  background-image: url("backg.png");
+  background-size: cover;
+  background-position-x: center;
+  min-height: 100vh;
+}
+
+.navs{
+  display: flex;
+  justify-content: space-between;
+  width: 40%;
+  list-style-type: none;
+}
+.nav_link{
+  color: white;
+  font-weight: 700;
+  font-size: larger;
+  margin-right: 2em;  
+}
+.nav_link:hover{
+  border: none;
+  border-bottom: 2px solid red;
+}
+h1{
+  color: white;
+  font-weight: 900;
+}
+
+.login{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.login_box{
+  background: #FFFFFF;
+  margin-top: 5em;
+  border-radius: 10px 10px 10px 10px;
+  padding-top:2%;
+  opacity: 0.88;
+  min-width: 500px;
+  min-height: 500px;
+}
+
+.login_form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  
+}
+.login_input{
+  border: none;
+  border-bottom: 1px solid black;
+  width: 60%;
+  margin-top: 8%;
+  outline: none;
+}
+
+.submit{
+  background-color: #ED695D;
+  color: white;
+  opacity: 1;
+  border: 1px solid #707070;
+  border-radius: 27px;
+  width:25%;
+  height:2.5em;
+  margin-top: 3em;
+  outline: none;
+}
+.logo{
+  border-radius: 6px;
+  width: 110px;
+  height: 60px;
+}
+

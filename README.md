@@ -25,7 +25,7 @@ The database mainly consists of 3 tables.
 * Vehicle Table
 * Vehicle Owner Table (From external database)
 
-![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/Database.jpg)
+![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/database.jpg)
 
 
 ### Usecase diagram

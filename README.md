@@ -29,7 +29,7 @@ The database mainly consists of 3 tables.
 
 
 ### Usecase diagram
-![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/usecase.png)
+![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/usecase.jpg)
 
 ### Website
 ![alt text](https://github.com/shuhaibibrahim/design-project/blob/master/websiteUiLogin.jpeg)

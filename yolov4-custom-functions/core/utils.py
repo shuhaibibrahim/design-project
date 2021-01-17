@@ -6,6 +6,7 @@ import tensorflow as tf
 import pytesseract
 from core.config import cfg
 import re
+from server import insertPlate
 
 # If you don't have tesseract executable in your PATH, include the following:
 # pytesseract.pytesseract.tesseract_cmd = r'<full_path_to_your_tesseract_executable>'
@@ -77,9 +78,11 @@ def recognize_plate(img, coords):
             # clean tesseract text by removing any unwanted blank spaces
             clean_text = re.sub('[\W_]+', '', text)
             plate_num += clean_text
+
         except: 
             text = None
     if plate_num != None:
+        insertPlate(plate_num)
         print("License Plate #: ", plate_num)
     #cv2.imshow("Character's Segmented", im2)
     #cv2.waitKey(0)
@@ -229,14 +232,17 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
 
     #coordinates of imaginary detection lines
     detx1=0
-    dety1=height-250
+    dety1=height-200
     detx2=width
-    dety2=height-250
+    dety2=height-200
 
     out_boxes, out_scores, out_classes, num_boxes = bboxes
     for i in range(num_boxes):
         if int(out_classes[i]) < 0 or int(out_classes[i]) > num_classes: continue
         coor = out_boxes[i]
+
+        pHeight=coor[1]-coor[3]
+
         fontScale = 0.5
         score = out_scores[i]
         class_ind = int(out_classes[i])
@@ -246,7 +252,7 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
         else:
 
             #recognize only if bounding box is inside the detection line
-            if read_plate and (coor[1]-dety1)*(coor[3]-dety1)<0:
+            if read_plate and (coor[1]-pHeight*.25-dety1)*(coor[3]+pHeight*.25-dety1)<0:
                 height_ratio = int(image_h / 25)
                 plate_number = recognize_plate(image, coor)
                 if plate_number != None:
@@ -493,4 +499,3 @@ def unfreeze_all(model, frozen=False):
     if isinstance(model, tf.keras.Model):
         for l in model.layers:
             unfreeze_all(l, frozen)
-

@@ -225,6 +225,14 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
     random.shuffle(colors)
     random.seed(None)
 
+    height, width=image.shape[:2]
+
+    #coordinates of imaginary detection lines
+    detx1=0
+    dety1=height-250
+    detx2=width
+    dety2=height-250
+
     out_boxes, out_scores, out_classes, num_boxes = bboxes
     for i in range(num_boxes):
         if int(out_classes[i]) < 0 or int(out_classes[i]) > num_classes: continue
@@ -236,7 +244,9 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
         if class_name not in allowed_classes:
             continue
         else:
-            if read_plate:
+
+            #recognize only if bounding box is inside the detection line
+            if read_plate and (coor[1]-dety1)*(coor[3]-dety1)<0:
                 height_ratio = int(image_h / 25)
                 plate_number = recognize_plate(image, coor)
                 if plate_number != None:
@@ -267,6 +277,10 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
                     cv2.putText(image, "{}s detected: {}".format(key, value), (5, offset),
                             cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 255, 0), 2)
                     offset += height_ratio
+    
+    #drawing detection line 
+    cv2.line(image,(detx1,dety1),(detx2,dety2),(0,255,0),2)
+
     return image
 
 def bbox_iou(bboxes1, bboxes2):

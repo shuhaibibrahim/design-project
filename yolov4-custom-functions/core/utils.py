@@ -7,6 +7,12 @@ import pytesseract
 from core.config import cfg
 import re
 from core.server import insertPlate
+from core.checkvehicle import check
+import requests
+import base64
+from pprint import pprint
+from PIL import Image
+from datetime import datetime 
 
 # If you don't have tesseract executable in your PATH, include the following:
 # pytesseract.pytesseract.tesseract_cmd = r'<full_path_to_your_tesseract_executable>'
@@ -73,17 +79,43 @@ def recognize_plate(img, coords):
         roi = cv2.bitwise_not(roi)
         # perform another blur on character region
         roi = cv2.medianBlur(roi, 5)
-        try:
-            text = pytesseract.image_to_string(roi, config='-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --psm 8 --oem 3')
-            # clean tesseract text by removing any unwanted blank spaces
-            clean_text = re.sub('[\W_]+', '', text)
-            plate_num += clean_text
 
+        # roi.save('./mycrops/currcrop','JPEG')
+        im = Image.fromarray(box)
+        im.save("currcrop.jpeg")
+
+        try:
+            # text = pytesseract.image_to_string(roi, config='-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --psm 8 --oem 3')
+            # # clean tesseract text by removing any unwanted blank spaces
+            # clean_text = re.sub('[\W_]+', '', text)
+            # plate_num += clean_text
+          # imgbase64 = base64.b64encode(im2)
+          fp=open('currcrop.jpeg', 'rb')
+          # print("hellooo")
+          response = requests.post(
+            'https://api.platerecognizer.com/v1/plate-reader/',
+            files=dict(upload=fp),
+            headers={'Authorization': 'Token c0eb79920ae4ed99fc446115e6c3d2c1a77d7c90'})
+          # pprint(response.json())
+          myplates=response.json()['results'][0]['candidates']
+          # print(myplates[0]['plate'])
+          plate_num=myplates[0]['plate'].upper()
         except: 
             text = None
     if plate_num != None:
-        insertPlate(plate_num)
-        print("License Plate #: ", plate_num)
+        current_time = datetime.now() 
+        i="i"
+        for i in plate_num[::-1]:
+          if i.isdigit():
+            print(i)
+            break
+
+        if i.isdigit():
+          if (current_time.day%2==0 and int(i)%2==0) or (current_time.day%2!=0 and int(i)%2!=0):
+            if check(plate_num): #checking the vehicle is electric and public
+              insertPlate(plate_num)
+              
+        print("License Plate # : ", plate_num)
     #cv2.imshow("Character's Segmented", im2)
     #cv2.waitKey(0)
     return plate_num
@@ -232,9 +264,9 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
 
     #coordinates of imaginary detection lines
     detx1=0
-    dety1=height-200
+    dety1=int(height-height*.5)
     detx2=width
-    dety2=height-200
+    dety2=int(height-height*.5)
 
     out_boxes, out_scores, out_classes, num_boxes = bboxes
     for i in range(num_boxes):
@@ -252,7 +284,8 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
         else:
 
             #recognize only if bounding box is inside the detection line
-            if read_plate and (coor[1]-pHeight*.25-dety1)*(coor[3]+pHeight*.25-dety1)<0:
+            # if read_plate and (coor[1]-pHeight*.25-dety1)*(coor[3]+pHeight*.25-dety1)<0:
+            if read_plate and (coor[1]-dety1)*(coor[3]-dety1)<0:
                 height_ratio = int(image_h / 25)
                 plate_number = recognize_plate(image, coor)
                 if plate_number != None:
@@ -499,3 +532,4 @@ def unfreeze_all(model, frozen=False):
     if isinstance(model, tf.keras.Model):
         for l in model.layers:
             unfreeze_all(l, frozen)
+

@@ -8,6 +8,7 @@ from core.config import cfg
 import re
 from core.server import insertPlate
 from core.checkvehicle import check
+from core.sendmail import sendmail
 import requests
 import base64
 from pprint import pprint
@@ -54,54 +55,54 @@ def recognize_plate(img, coords):
     # create blank string to hold license plate number
     plate_num = ""
     # loop through contours and find individual letters and numbers in license plate
-    for cnt in sorted_contours:
-        x,y,w,h = cv2.boundingRect(cnt)
-        height, width = im2.shape
-        # if height of box is not tall enough relative to total height then skip
-        if height / float(h) > 6: continue
+    # for cnt in sorted_contours:
+    #     x,y,w,h = cv2.boundingRect(cnt)
+    #     height, width = im2.shape
+    #     # if height of box is not tall enough relative to total height then skip
+    #     if height / float(h) > 6: continue
 
-        ratio = h / float(w)
-        # if height to width ratio is less than 1.5 skip
-        if ratio < 1.5: continue
+    #     ratio = h / float(w)
+    #     # if height to width ratio is less than 1.5 skip
+    #     if ratio < 1.5: continue
 
-        # if width is not wide enough relative to total width then skip
-        if width / float(w) > 15: continue
+    #     # if width is not wide enough relative to total width then skip
+    #     if width / float(w) > 15: continue
 
-        area = h * w
-        # if area is less than 100 pixels skip
-        if area < 100: continue
+    #     area = h * w
+    #     # if area is less than 100 pixels skip
+    #     if area < 100: continue
 
-        # draw the rectangle
-        rect = cv2.rectangle(im2, (x,y), (x+w, y+h), (0,255,0),2)
-        # grab character region of image
-        roi = thresh[y-5:y+h+5, x-5:x+w+5]
-        # perfrom bitwise not to flip image to black text on white background
-        roi = cv2.bitwise_not(roi)
-        # perform another blur on character region
-        roi = cv2.medianBlur(roi, 5)
+    #     # draw the rectangle
+    #     rect = cv2.rectangle(im2, (x,y), (x+w, y+h), (0,255,0),2)
+    #     # grab character region of image
+    #     roi = thresh[y-5:y+h+5, x-5:x+w+5]
+    #     # perfrom bitwise not to flip image to black text on white background
+    #     roi = cv2.bitwise_not(roi)
+    #     # perform another blur on character region
+    #     roi = cv2.medianBlur(roi, 5)
 
-        # roi.save('./mycrops/currcrop','JPEG')
-        im = Image.fromarray(box)
-        im.save("currcrop.jpeg")
+    #     # roi.save('./mycrops/currcrop','JPEG')
+    im = Image.fromarray(box)
+    im.save("currcrop.jpeg")
 
-        try:
-            # text = pytesseract.image_to_string(roi, config='-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --psm 8 --oem 3')
-            # # clean tesseract text by removing any unwanted blank spaces
-            # clean_text = re.sub('[\W_]+', '', text)
-            # plate_num += clean_text
-          # imgbase64 = base64.b64encode(im2)
-          fp=open('currcrop.jpeg', 'rb')
-          # print("hellooo")
-          response = requests.post(
-            'https://api.platerecognizer.com/v1/plate-reader/',
-            files=dict(upload=fp),
-            headers={'Authorization': 'Token c0eb79920ae4ed99fc446115e6c3d2c1a77d7c90'})
-          # pprint(response.json())
-          myplates=response.json()['results'][0]['candidates']
-          # print(myplates[0]['plate'])
-          plate_num=myplates[0]['plate'].upper()
-        except: 
-            text = None
+    try:
+        # text = pytesseract.image_to_string(roi, config='-c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ --psm 8 --oem 3')
+        # # clean tesseract text by removing any unwanted blank spaces
+        # clean_text = re.sub('[\W_]+', '', text)
+        # plate_num += clean_text
+      # imgbase64 = base64.b64encode(im2)
+      fp=open('currcrop.jpeg', 'rb')
+      # print("hellooo")
+      response = requests.post(
+        'https://api.platerecognizer.com/v1/plate-reader/',
+        files=dict(upload=fp),
+        headers={'Authorization': 'Token c0eb79920ae4ed99fc446115e6c3d2c1a77d7c90'})
+      # pprint(response.json())
+      myplates=response.json()['results'][0]['candidates']
+      # print(myplates[0]['plate'])
+      plate_num=myplates[0]['plate'].upper()
+    except: 
+        text = None
     if plate_num != None:
         current_time = datetime.now() 
         i="i"
@@ -111,8 +112,10 @@ def recognize_plate(img, coords):
             break
 
         if i.isdigit():
-          if (current_time.day%2==0 and int(i)%2==0) or (current_time.day%2!=0 and int(i)%2!=0):
-            if check(plate_num): #checking the vehicle is electric and public
+          if (current_time.day%2!=0 and int(i)%2==0) or (current_time.day%2==0 and int(i)%2!=0):
+            email=check(plate_num) #checking the vehicle is electric and public, return email if true else false
+            if email: 
+              sendmail(email,plate_num)
               insertPlate(plate_num)
               
         print("License Plate # : ", plate_num)
@@ -284,8 +287,8 @@ def draw_bbox(image, bboxes, info = False, counted_classes = None, show_label=Tr
         else:
 
             #recognize only if bounding box is inside the detection line
-            # if read_plate and (coor[1]-pHeight*.25-dety1)*(coor[3]+pHeight*.25-dety1)<0:
-            if read_plate and (coor[1]-dety1)*(coor[3]-dety1)<0:
+            if read_plate and (coor[1]-pHeight*.25-dety1)*(coor[3]+pHeight*.25-dety1)<0:
+            # if read_plate and (coor[1]-dety1)*(coor[3]-dety1)<0:
                 height_ratio = int(image_h / 25)
                 plate_number = recognize_plate(image, coor)
                 if plate_number != None:
@@ -532,4 +535,5 @@ def unfreeze_all(model, frozen=False):
     if isinstance(model, tf.keras.Model):
         for l in model.layers:
             unfreeze_all(l, frozen)
+
 

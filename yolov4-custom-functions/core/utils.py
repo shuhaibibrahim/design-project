@@ -103,7 +103,9 @@ def recognize_plate(img, coords):
       plate_num=myplates[0]['plate'].upper()
     except: 
         text = None
-    if plate_num != None:
+        
+    if plate_num != None:      
+        print("License Plate # : ", plate_num)
         current_time = datetime.now() 
         i="i"
         for i in plate_num[::-1]:
@@ -115,10 +117,8 @@ def recognize_plate(img, coords):
           if (current_time.day%2!=0 and int(i)%2==0) or (current_time.day%2==0 and int(i)%2!=0):
             email=check(plate_num) #checking the vehicle is electric and public, return email if true else false
             if email: 
-              sendmail(email,plate_num)
               insertPlate(plate_num)
-              
-        print("License Plate # : ", plate_num)
+              sendmail(email,plate_num)
     #cv2.imshow("Character's Segmented", im2)
     #cv2.waitKey(0)
     return plate_num

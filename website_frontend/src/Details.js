@@ -21,7 +21,7 @@ function Details() {
             <div style={{position:'absolute',right:'6%',marginTop:'2%',marginBottom:'2%'}}>
             <input type="date" value={date} onChange={(e)=>setdate(e.target.value)}/>
             </div>
-            <div style={{width:'80%',display:'block',margin:'auto',borderRadius:'5px'}}>
+            <div style={{width:'80%',display:'block',margin:'auto',borderRadius:'5px',marginTop:'100px'}}>
             <Table striped bordered hover style={{margin:'4em',backgroundColor:'white',opacity:'0.88'}}>
             <thead>
             <tr>

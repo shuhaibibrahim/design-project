@@ -16,7 +16,7 @@ function Login() {
 
     return (
         <div className="login">
-            <h1>MOTOR VEHICLE DEPARTMENT</h1>
+            <h1>PROJECT THIRD-EYE</h1>
             <div className="login_box">
                 <form className="login_form" onSubmit={handleLogin}>
                 <h2>Login</h2>
